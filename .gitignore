@@ -1,15 +1,19 @@
-# IDE folders
-.idea/
+# Build and Release Folders
+bin/
+bin-debug/
+bin-release/
+[Oo]bj/ # FlashDevelop obj
+[Bb]in/ # FlashDevelop bin
 
-# Processed files
-.json
-.tsv
-.txt
-.html
+# Other files and folders
+.settings/
 
-# Compiled files
-.pyc
+# Executables
+*.swf
+*.air
+*.ipa
+*.apk
 
-# Generated Folders
-data/
-recipes/
+# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
+# should NOT be excluded as they contain compiler settings and other important
+# information for Eclipse / Flash Builder.
