@@ -71,8 +71,8 @@ def perform_query(query):
 
     docs = retrieve_docs(query)
     res = compute_scores(docs)
-
-    return res
+    doc_list = [str(documents[doc[0]].get_name()) for doc in res]
+    return doc_list
 
 
 def retrieve_docs(query):
@@ -123,6 +123,7 @@ def compute_scores(posting_lists):
     ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
     return ordered_docs[:20]
 
+
 if __name__ == '__main__':
     if __package__ is None:
         import sys
@@ -137,6 +138,5 @@ if __name__ == '__main__':
 
     while True:
         user_in = raw_input("Ask user for something.")
-        result = perform_query(user_in)
-        doc_list = [str(documents[doc[0]].get_name()) for doc in result]
+        doc_list = perform_query(user_in)
         print doc_list
