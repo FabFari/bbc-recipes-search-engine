@@ -1,7 +1,5 @@
-import json
 import re
 import string
-import unicode_ascii_decoder
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -96,6 +94,11 @@ def prepocess_field(field, process):
 
 
 def tabularize_recipe(recipe, process):
+    import sys
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from utils import unicode_ascii_decoder
+
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",

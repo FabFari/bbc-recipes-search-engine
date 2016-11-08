@@ -1,5 +1,4 @@
 import json
-import timeit
 import operator
 from collections import defaultdict
 from corpus_tokenizer import prepocess_field
@@ -10,10 +9,11 @@ INPUT_DIR = "data"
 
 INDEX_NAME = "inverted_index.json"
 JSON_NAME = "recipes.json"
-TSV_NAME = "recipes_lemm.tsv"
+TSV_NAME = "recipes_tags.tsv"
 
 THRESHOLD = 0.0
 WORDS_STEAK_BONUS = 0.1
+PROX_SCORE_FACTOR = 0.5
 
 # Global Data Structures
 dictionary = {}
@@ -67,10 +67,17 @@ def setup_query_engine():
 
 
 def perform_query(query):
+    do_proximity = False
+
     print 'perform_query..'
 
-    docs = retrieve_docs(query)
-    res = compute_scores(docs)
+    if query[0] == '\"':
+        do_proximity = True
+        docs = retrieve_docs(query[1:len(query) - 1])
+    else:
+        docs = retrieve_docs(query)
+
+    res = compute_scores(docs, do_proximity)
 
     return res
 
@@ -83,28 +90,33 @@ def retrieve_docs(query):
     q_tokenized = [str(w) for w in q_tokenized]
 
     retrieved_postings = []
-    i = 0
+    # i = 0
     print 'retrieving posting lists..'
 
     for word in q_tokenized:
-        i += 1
+        # i += 1
         try:
             retrieved_posting = dictionary[word]
-        except:
+        except KeyError:
             continue
         idf = retrieved_posting.get_value()
         if idf > THRESHOLD:
             retrieved_postings.append(retrieved_posting)
 
-    print i
+    # print i
     return retrieved_postings
 
 
 # Receive as input the posting lists retrieved
 # Compute all the cosine similarities in parallel, returns the top 10
-def compute_scores(posting_lists):
+def compute_scores(posting_lists, do_proximity=False):
     global documents
     doc_scores = defaultdict(lambda: 0)
+
+    if do_proximity:
+        doc_pos = {}
+        pair_docs = {}
+        prox_score = defaultdict(lambda: 0)
 
     for cur_list in posting_lists:
         docs = cur_list.get_my_list()
@@ -120,8 +132,62 @@ def compute_scores(posting_lists):
 
             doc_scores[doc_id] = bonus + cur_value + ((tf * idf)/float(documents[doc_id].get_size()))
 
+            if do_proximity:
+                if doc_id not in doc_pos.keys():
+                    doc_pos[doc_id] = {}
+                    doc_pos[doc_id][cur_list.get_label()] = d.get_my_list()
+                else:
+                    doc_pos[doc_id][cur_list.get_label()] = d.get_my_list()
+                if doc_id not in pair_docs.keys():
+                    pair_docs[doc_id] = set()
+                    pair_docs[doc_id].add((cur_list.get_label(), "NONE"))
+                else:
+                    pair_docs[doc_id] = extend_pairs(pair_docs[doc_id], cur_list.get_label())
+
+        # print pair_docs
+
+    if do_proximity:
+        terms = len(posting_lists)
+        for doc, pairs in pair_docs.iteritems():
+            for terms in pairs:
+                # print terms
+                if terms[1] != "NONE":
+                    dist = ev_dist(doc_pos[doc][terms[0]], doc_pos[doc][terms[1]])
+                    if dist < terms and dist != 0:
+                        prox_score[doc] += (1 / dist)
+            try:
+                doc_scores[doc] += prox_score[doc]
+            except KeyError:
+                continue
+
     ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
     return ordered_docs[:20]
+
+
+def extend_pairs(pair_docs, doc_id):
+    new_pairs = set()
+
+    for p in pair_docs:
+        new_pairs.add((p[0], doc_id))
+        if p[1] != "NONE":
+            new_pairs.add((p[1], doc_id))
+
+    return new_pairs
+
+
+def ev_dist(pos_list_i, pos_list_j):
+    min_dist = abs(pos_list_i[0] - pos_list_j[0])
+
+    for p_i in pos_list_i:
+        for p_j in pos_list_j:
+            dist = abs(p_i - p_j)
+            if dist < min_dist:
+                min_dist = dist
+            if p_j > p_i:
+                break
+
+    return min_dist
+
 
 if __name__ == '__main__':
     if __package__ is None:
