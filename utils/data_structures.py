@@ -52,10 +52,11 @@ class LabeledList:
 
 
 class DocEntry:
-    def __init__(self, id, name, size):
+    def __init__(self, id, name, size, veggie=False):
         self.id = id
         self.name = name
         self.size = size
+        self.veggie = veggie
 
     def get_id(self):
         return self.id
@@ -65,6 +66,9 @@ class DocEntry:
 
     def get_size(self):
         return self.size
+
+    def is_veggie(self):
+        return self.veggie
 
     def str(self):
         return "{" + str(self.id) + " " + str(self.name) + " " + str(self.size) + "}"
