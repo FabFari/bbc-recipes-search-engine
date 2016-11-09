@@ -96,7 +96,7 @@ def retrieve_docs(query):
         if idf > THRESHOLD:
             retrieved_postings.append(retrieved_posting)
 
-    print i
+    #print i
     return retrieved_postings
 
 
