@@ -39,15 +39,15 @@ class Ui_MainWindow(object):
         self.centralwidget.setMaximumSize(QtCore.QSize(800, 559))
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.query_text = QtGui.QPlainTextEdit(self.centralwidget)
-        self.query_text.setGeometry(QtCore.QRect(40, 10, 500, 35))
-        self.query_text.setMinimumSize(QtCore.QSize(500, 35))
-        self.query_text.setMaximumSize(QtCore.QSize(450, 35))
+        self.query_text.setGeometry(QtCore.QRect(40, 10, 370, 35))
+        self.query_text.setMinimumSize(QtCore.QSize(370, 35))
+        self.query_text.setMaximumSize(QtCore.QSize(370, 35))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.query_text.setFont(font)
         self.query_text.setObjectName(_fromUtf8("query_text"))
         self.go_button = QtGui.QPushButton(self.centralwidget)
-        self.go_button.setGeometry(QtCore.QRect(540, 10, 45, 35))
+        self.go_button.setGeometry(QtCore.QRect(500, 10, 45, 35))
         self.go_button.setMinimumSize(QtCore.QSize(45, 35))
         self.go_button.setMaximumSize(QtCore.QSize(45, 28))
         self.go_button.setDefault(False)
@@ -59,6 +59,12 @@ class Ui_MainWindow(object):
         self.listWidget.setMinimumSize(QtCore.QSize(500, 500))
         self.listWidget.setMaximumSize(QtCore.QSize(500, 500))
         self.listWidget.setObjectName(_fromUtf8("listWidget"))
+        self.checkBox = QtGui.QCheckBox(self.centralwidget)
+        self.checkBox.setGeometry(QtCore.QRect(420, 10, 81, 31))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkBox.setFont(font)
+        self.checkBox.setObjectName(_fromUtf8("checkBox"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 625, 21))
@@ -77,12 +83,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Search Engine Recipes", None))
         self.query_text.setPlainText(_translate("MainWindow", "type the query", None))
         self.go_button.setText(_translate("MainWindow", "GO!", None))
+        self.checkBox.setText(_translate("MainWindow", "Vegetarian", None))
         self.actionPreproces_Setup.setText(_translate("MainWindow", "Preproces Setup", None))
-
-
-class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
-    def __init__(self, parent=None, f=QtCore.Qt.WindowFlags()):
-        QtGui.QMainWindow.__init__(self, parent, f)
-
-        self.setupUi(self)
 

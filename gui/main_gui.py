@@ -51,7 +51,7 @@ class QCustomQWidget(QtGui.QWidget):
         if(len(imagePath)>0):
             #img =urllib.urlretrieve(imagePath, str(self.name_file)+".jpg")
 
-            # print 'imagePath: '+str(imagePath)
+            print 'imagePath: '+str(imagePath)
             data = urllib2.urlopen(imagePath).read()
             image = QtGui.QImage()
             image.loadFromData(data)
