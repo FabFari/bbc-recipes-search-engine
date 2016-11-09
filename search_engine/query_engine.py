@@ -87,7 +87,7 @@ def perform_query(query, vegetarian=False):
 
     return res
 
-
+	
 def retrieve_docs(query):
     # Preprocessing query
     print 'Preprocessing query..'
@@ -205,6 +205,7 @@ def ev_dist(pos_list_i, pos_list_j):
     return min_dist
 
 
+
 if __name__ == '__main__':
     if __package__ is None:
         import sys
@@ -219,5 +220,5 @@ if __name__ == '__main__':
 
     while True:
         user_in = raw_input("Ask user for something.")
-        result = perform_query(user_in, vegetarian=True)
+        result = perform_query(user_in)
         print result

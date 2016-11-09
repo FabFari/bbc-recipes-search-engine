@@ -98,7 +98,7 @@ def tabularize_recipe(recipe, process):
     from os import path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from utils import unicode_ascii_decoder
-
+	
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
