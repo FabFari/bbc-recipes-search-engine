@@ -13,6 +13,7 @@ from PyQt4.QtGui import *
 import urllib2
 from PyQt4.QtCore import QUrl
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+import time
 
 
 RECIPES_DIR = "recipes"
@@ -52,7 +53,10 @@ class QCustomQWidget(QtGui.QWidget):
             #img =urllib.urlretrieve(imagePath, str(self.name_file)+".jpg")
 
             print 'imagePath: '+str(imagePath)
+            start = time.time()
             data = urllib2.urlopen(imagePath).read()
+            end = time.time()
+            print(end - start)
             image = QtGui.QImage()
             image.loadFromData(data)
             width = 40
@@ -111,7 +115,10 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
 
         if(tag):
             #recipe, title, descr, img_url
+            start = time.time()
             result = self.getTitleDescIcon(result)
+            end = time.time()
+            print(end - start)
 
         listWidget = self.listWidget
         listWidget.clear()
@@ -146,7 +153,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().getNameFile())
         # now we have to lauch the new window
         url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().getNameFile())
-        #url = 'http://www.bbc.co.uk/food/recipes/cappucino_crme_brles_08725'
+        # url = 'http://www.bbc.co.uk/food/recipes/cappucino_crme_brles_08725'
         webbrowser.open(url)
 
     def getTitleDescIcon(self,res):
