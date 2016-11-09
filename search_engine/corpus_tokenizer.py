@@ -29,9 +29,9 @@ def process_json_recipes(recipes_file):
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from utils.utility_functions import load_json
 
-    fl = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_LEMM), 'wt')
-    fs = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_STEM), 'wt')
-    ft = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_TAGS), 'wt')
+    # fl = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_LEMM), 'wt')
+    # fs = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_STEM), 'wt')
+    # ft = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_TAGS), 'wt')
     fb = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_SNOW), 'wt')
 
     recipes = load_json(recipes_file, INPUT_DIR)
@@ -43,15 +43,15 @@ def process_json_recipes(recipes_file):
 
     for recipe in recipes:
         print 'Processing recipe "{}": {} of {}'.format(recipe["name"], curr, tot)
-        fl.write(tabularize_recipe(recipe, DO_LEMMIZATION) + '\n')
-        fs.write(tabularize_recipe(recipe, DO_STEMMING) + '\n')
-        ft.write(tabularize_recipe(recipe, DO_TAGS_STEMM) + '\n')
+        # fl.write(tabularize_recipe(recipe, DO_LEMMIZATION) + '\n')
+        # fs.write(tabularize_recipe(recipe, DO_STEMMING) + '\n')
+        # ft.write(tabularize_recipe(recipe, DO_TAGS_STEMM) + '\n')
         fb.write(tabularize_recipe(recipe, DO_SNOW_STEMM) + '\n')
         curr += 1
 
-    fl.close()
-    fs.close()
-    ft.close()
+    # fl.close()
+    # fs.close()
+    # ft.close()
     fb.close()
 
 
@@ -98,15 +98,15 @@ def tabularize_recipe(recipe, process):
     from os import path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from utils import unicode_ascii_decoder
-	
+
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
-                     "dietary", "chef", "show", "ingredients", "methods"]
+                     "dietary", "chef", "show", "ingredients", "methods", "img_url"]
 
     for key in process_order:
         value = recipe[key]
-        if key == "name" or value == "":
+        if key == "name" or key == "img_url" or value == "":
             continue
 
         if key == "ingredients":

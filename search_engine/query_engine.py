@@ -66,7 +66,7 @@ def setup_query_engine():
             vegetarian = True
         else:
             vegetarian = False
-        documents.append(DocEntry(curr_id, doc["name"], len(d), vegetarian))
+        documents.append(DocEntry(curr_id, doc["name"], len(d), doc["title"], doc["descr"], doc["img_url"], vegetarian))
         curr_id += 1
 
     dictionary = load_json_to_str()
@@ -87,7 +87,7 @@ def perform_query(query, vegetarian=False):
 
     return res
 
-	
+
 def retrieve_docs(query):
     # Preprocessing query
     print 'Preprocessing query..'
@@ -161,7 +161,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
                 if terms[1] != "NONE":
                     dist = ev_dist(doc_pos[doc_id][terms[0]], doc_pos[doc_id][terms[1]])
                     if dist < terms and dist != 0:
-                        prox_score[doc_id] += (1 / dist)
+                        prox_score[doc_id] += PROX_SCORE_FACTOR*(1 / dist)
             try:
                 doc_scores[doc_id] += prox_score[doc_id]
             except KeyError:
@@ -175,7 +175,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
     else:
         ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
 
-    res = [str(documents[doc_pair[0]].get_name()) for doc_pair in ordered_docs[:20]]
+    res = [documents[doc_pair[0]] for doc_pair in ordered_docs[:10]]
 
     return res
 
@@ -205,7 +205,6 @@ def ev_dist(pos_list_i, pos_list_j):
     return min_dist
 
 
-
 if __name__ == '__main__':
     if __package__ is None:
         import sys
@@ -221,4 +220,5 @@ if __name__ == '__main__':
     while True:
         user_in = raw_input("Ask user for something.")
         result = perform_query(user_in)
+        result = [w.get_name() for w in result]
         print result

@@ -16,7 +16,7 @@ recipe = 'hasselback_bacon_61171.html'
 result = []
 f = io.open('..\{}\{}'.format(RECIPES_DIR, recipe), 'r', encoding='utf-8')
 soup = BeautifulSoup(f, 'html5lib')
-imgs = soup.find_all("img", class_="recipe-media__image responsive-images")[0]['src']
+imgs = check_if_empty(soup.find_all("img", class_="recipe-media__image responsive-images")[0]['src'])
 tup = ('jnejw',imgs)
 
 result.append(tup)

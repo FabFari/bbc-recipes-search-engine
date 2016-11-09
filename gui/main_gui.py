@@ -14,10 +14,10 @@ import urllib2
 from PyQt4.QtCore import QUrl
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 import time
-
+from multiprocessing.pool import ThreadPool
+from utils.data_structures import DocEntry
 
 RECIPES_DIR = "recipes"
-
 
 class QCustomQWidget(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -52,11 +52,11 @@ class QCustomQWidget(QtGui.QWidget):
         if(len(imagePath)>0):
             #img =urllib.urlretrieve(imagePath, str(self.name_file)+".jpg")
 
-            print 'imagePath: '+str(imagePath)
-            start = time.time()
+            # print 'imagePath: '+str(imagePath)
+            # start = time.time()
             data = urllib2.urlopen(imagePath).read()
-            end = time.time()
-            print(end - start)
+            # end = time.time()
+            # print(end - start)
             image = QtGui.QImage()
             image.loadFromData(data)
             width = 40
@@ -65,13 +65,11 @@ class QCustomQWidget(QtGui.QWidget):
             self.iconQLabel.setMaximumSize(width, height)
             self.iconQLabel.resize(width, height)
             pixmap = QtGui.QPixmap(image)
-            pixmap2 = pixmap.scaledToWidth(74)
+            self.pixmap2 = pixmap.scaledToWidth(74)
             #mg.setMinimumSize(width, height)
             #img.setMaximumSize(width, height)
             #img.resize(width,height)
-            self.iconQLabel.setPixmap(pixmap2)
-
-
+            self.iconQLabel.setPixmap(self.pixmap2)
 
     def getTextUp(self):
         return 'getTextUp'
@@ -99,26 +97,11 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.query_text.setPlainText("type the query..")
 
     def perform_query(self):
-        query = self.query_text.toPlainText()
         self.go_button.setEnabled(False)
-        print '[main_gui] perform_query "' + str(query)+'"'
-        if str(query) in 'type the query':
-            print '[main_gui] type the query in the query'
-
-        result = perform_query(str(query))
-        tag = True
-        if len(result) == 0:
-            result.append('No result found')
-            tag = False
-
-        #print '[main_gui]' + str(result)
-
-        if(tag):
-            #recipe, title, descr, img_url
-            start = time.time()
-            result = self.getTitleDescIcon(result)
-            end = time.time()
-            print(end - start)
+        query = self.query_text.toPlainText()
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(self.worker, (query, self.checkBox.isChecked()))  # tuple of args for foo
+        result = async_result.get()
 
         listWidget = self.listWidget
         listWidget.clear()
@@ -126,10 +109,10 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
             # Create QCustomQWidget
             myQCustomQWidget = QCustomQWidget()
 
-            myQCustomQWidget.setNameFile(r[0])
-            myQCustomQWidget.setTextUp(r[1])
-            myQCustomQWidget.setTextDown(r[2])
-            myQCustomQWidget.setIcon(r[3])
+            myQCustomQWidget.setNameFile(r.get_name())
+            myQCustomQWidget.setTextUp(r.get_title())
+            myQCustomQWidget.setTextDown(r.get_desc())
+            myQCustomQWidget.setIcon(r.get_img_url())
 
             # Create QListWidgetItem
             myQListWidgetItem = QtGui.QListWidgetItem(listWidget)
@@ -147,7 +130,23 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         # self.setCentralWidget(listWidget)
         listWidget.itemClicked.connect(self.item_click)
         listWidget.show()
+
         self.go_button.setEnabled(True)
+        return
+
+    def worker(self, query, check):
+        """thread worker function"""
+        print '[main_gui] perform_query "' + str(query) + '"'
+        if str(query) in 'type the query':
+            print '[main_gui] type the query in the query'
+        else:
+            result = perform_query(str(query),check)
+            # id, name, size, title, desc, img_url, veggie=False
+            #result = [DocEntry(0,"prova",87,"potato","baked_ginger_parkin_with_52330","http://weknowyourdreams.com/image.php?pic=/images/apple/apple-06.jpg")]
+            if len(result) == 0:
+                result.append('No result found')
+            # print '[main_gui]' + str(result)
+            return result
 
     def item_click(self, item):
         print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().getNameFile())
@@ -155,34 +154,6 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().getNameFile())
         # url = 'http://www.bbc.co.uk/food/recipes/cappucino_crme_brles_08725'
         webbrowser.open(url)
-
-    def getTitleDescIcon(self,res):
-        result = []
-        for recipe in res:
-            recipe = str(recipe) + '.html'
-            f = io.open('..\{}\{}'.format(RECIPES_DIR, recipe), 'r', encoding='utf-8')
-            soup = BeautifulSoup(f, 'html5lib')
-
-            # print "Name: ",recipe
-
-            title = check_if_empty(soup.find_all("h1", class_='content-title__text'))
-            # print "Title:", title
-
-            descr = check_if_empty(soup.find_all("p", class_='recipe-description__text'))
-            # print "Description:", descr
-
-            img_url = soup.find_all("img", class_="recipe-media__image responsive-images")
-            if(len(img_url)>0):
-                img_url = img_url[0]['src']
-            else:
-                img_url = ''
-
-            #result print 'Image url:', img_url
-            tup = (recipe, title, descr, img_url)
-            result.append(tup)
-            # print '\n'
-        # print result
-        return result
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     win = Window()

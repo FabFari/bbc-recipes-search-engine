@@ -65,6 +65,15 @@ def extract_recipe(recipe):
     dict_recipe["methods"] = methods
     # print "Methods: ", methods
 
+    img_url = soup.find_all("img", class_="recipe-media__image responsive-images")
+    if (len(img_url) > 0):
+        img_url = img_url[0]['src']
+    else:
+        img_url = u''
+
+    dict_recipe['img_url'] = img_url
+    # print img_url
+
     return dict_recipe
 
 
