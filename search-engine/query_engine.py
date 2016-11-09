@@ -14,6 +14,7 @@ TSV_NAME = "recipes_tags.tsv"
 THRESHOLD = 0.0
 WORDS_STEAK_BONUS = 0.1
 PROX_SCORE_FACTOR = 0.5
+VEGGIE = "Vegetarian"
 
 # Global Data Structures
 dictionary = {}
@@ -60,13 +61,18 @@ def setup_query_engine():
 
     curr_id = 0
     for d in docs_list:
-        documents.append(DocEntry(curr_id, doc_jsons[curr_id]["name"], len(d)))
+        doc = doc_jsons[curr_id]
+        if doc["dietary"] == VEGGIE:
+            vegetarian = True
+        else:
+            vegetarian = False
+        documents.append(DocEntry(curr_id, doc["name"], len(d), vegetarian))
         curr_id += 1
 
     dictionary = load_json_to_str()
 
 
-def perform_query(query):
+def perform_query(query, vegetarian=False):
     do_proximity = False
 
     print 'perform_query..'
@@ -77,7 +83,7 @@ def perform_query(query):
     else:
         docs = retrieve_docs(query)
 
-    res = compute_scores(docs, do_proximity)
+    res = compute_scores(docs, do_proximity, vegetarian)
 
     return res
 
@@ -109,7 +115,7 @@ def retrieve_docs(query):
 
 # Receive as input the posting lists retrieved
 # Compute all the cosine similarities in parallel, returns the top 10
-def compute_scores(posting_lists, do_proximity=False):
+def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
     global documents
     doc_scores = defaultdict(lambda: 0)
 
@@ -123,6 +129,8 @@ def compute_scores(posting_lists, do_proximity=False):
         idf = cur_list.get_value()
         for d in docs:
             doc_id = d.get_label()
+            if vegetarian and not documents[doc_id].is_veggie():
+                continue
             tf = d.get_value()
             cur_value = doc_scores[doc_id]
             bonus = 0
@@ -146,22 +154,30 @@ def compute_scores(posting_lists, do_proximity=False):
 
         # print pair_docs
 
-    if do_proximity:
-        terms = len(posting_lists)
-        for doc, pairs in pair_docs.iteritems():
+    if do_proximity and len(pair_docs) > 0:
+        for doc_id, pairs in pair_docs.iteritems():
             for terms in pairs:
                 # print terms
                 if terms[1] != "NONE":
-                    dist = ev_dist(doc_pos[doc][terms[0]], doc_pos[doc][terms[1]])
+                    dist = ev_dist(doc_pos[doc_id][terms[0]], doc_pos[doc_id][terms[1]])
                     if dist < terms and dist != 0:
-                        prox_score[doc] += (1 / dist)
+                        prox_score[doc_id] += (1 / dist)
             try:
-                doc_scores[doc] += prox_score[doc]
+                doc_scores[doc_id] += prox_score[doc_id]
             except KeyError:
                 continue
 
-    ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
-    return ordered_docs[:20]
+    # print doc_scores
+
+    if vegetarian:
+        veggie_docs = {doc_id: score for doc_id, score in doc_scores.iteritems() if documents[doc_id].is_veggie()}
+        ordered_docs = sorted(veggie_docs.items(), key=operator.itemgetter(1), reverse=True)
+    else:
+        ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
+
+    res = [str(documents[doc_pair[0]].get_name()) for doc_pair in ordered_docs[:20]]
+
+    return res
 
 
 def extend_pairs(pair_docs, doc_id):
@@ -203,6 +219,5 @@ if __name__ == '__main__':
 
     while True:
         user_in = raw_input("Ask user for something.")
-        result = perform_query(user_in)
-        doc_list = [str(documents[doc[0]].get_name()) for doc in result]
-        print doc_list
+        result = perform_query(user_in, vegetarian=True)
+        print result
