@@ -29,7 +29,7 @@ class QCustomQWidget(QtGui.QWidget):
         self.textUpQLabel.setStyleSheet(''' color: rgb(0, 0, 255); ''')
         self.textDownQLabel.setStyleSheet('''color: rgb(255, 0, 0); ''')
 
-    def filename(self):
+    def get_filename(self):
         return self.filename
 
     def set_filename(self, text):
@@ -69,22 +69,32 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.query_text.setPlainText("type the query..")
 
     def perform_query(self):
+        list_widget = self.listWidget
+        list_widget.clear()
+
+
         self.go_button.setEnabled(False)
         query = self.query_text.toPlainText()
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(self.worker, (query, self.checkBox.isChecked()))  # tuple of args for foo
         result = async_result.get()
 
-        list_widget = self.listWidget
-        list_widget.clear()
-        for r in result:
-            # Create QCustomQWidget
-            my_q_custom_q_widget = QCustomQWidget()
 
-            my_q_custom_q_widget.set_filename(r.get_name())
-            my_q_custom_q_widget.set_text_up(r.get_title())
-            my_q_custom_q_widget.set_text_down(r.get_desc())
-            my_q_custom_q_widget.set_icon(r.get_img_url())
+        for r in result:
+            if r == "No result found":
+                my_q_custom_q_widget = QCustomQWidget()
+
+                my_q_custom_q_widget.set_filename("")
+                my_q_custom_q_widget.set_text_up("No result found")
+                my_q_custom_q_widget.set_text_down("No result found")
+            else:
+                # Create QCustomQWidget
+                my_q_custom_q_widget = QCustomQWidget()
+
+                my_q_custom_q_widget.set_filename(str(r.get_name()))
+                my_q_custom_q_widget.set_text_up(r.get_title())
+                my_q_custom_q_widget.set_text_down(r.get_desc())
+                my_q_custom_q_widget.set_icon(str(r.get_img_url()))
 
             # Create QListWidgetItem
             my_qlist_widget_item = QtGui.QListWidgetItem(list_widget)
@@ -120,9 +130,10 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
 
     @staticmethod
     def item_click(item):
-        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().filename())
+        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
         # now we have to lauch the new window
-        url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().filename())
+        #print str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
+        url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
         webbrowser.open(url)
 
 if __name__ == '__main__':
