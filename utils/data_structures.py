@@ -52,7 +52,7 @@ class LabeledList:
 
 
 class DocEntry:
-    def __init__(self, id, name, size, title, desc, img_url, veggie=False):
+    def __init__(self, id, name, size, title, desc, img_url, ingr, veggie=False):
         self.id = id
         self.name = name
         self.size = size
@@ -60,6 +60,7 @@ class DocEntry:
         self.desc = desc
         self.img_url = img_url
         self.veggie = veggie
+        self.len_ingr = ingr
 
     def get_id(self):
         return self.id
@@ -72,6 +73,9 @@ class DocEntry:
 
     def get_title(self):
         return self.title
+
+    def get_len_ingr(self):
+        return self.len_ingr
 
     def get_desc(self):
         return self.desc

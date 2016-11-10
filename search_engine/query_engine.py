@@ -2,12 +2,14 @@ import json
 import operator
 from collections import defaultdict
 
-from corpus_tokenizer import prepocess_field
 from utils.json_coders import LabeledListDecoder
 from utils.data_structures import DocEntry
 from utils.utility_functions import load_tsv
 from utils.utility_functions import load_json
+from corpus_tokenizer import preprocess_field
 from corpus_tokenizer import DO_TAGS_STEMM
+from inv_index_builder import TITLE_WEIGHT
+from inv_index_builder import ING_WEIGHT
 
 
 INPUT_DIR = "data"
@@ -44,6 +46,13 @@ def load_json_to_str(filename=None):
     return deunify_dict(data)
 
 
+def compute_len_ingr(ing_list, process):
+    len_ingr = 0
+    for ing in ing_list:
+        len_ingr += len(preprocess_field(ing, process))
+    return len_ingr
+
+
 def setup_query_engine():
     print 'setup_query_engine..'
     global dictionary
@@ -59,7 +68,10 @@ def setup_query_engine():
             vegetarian = True
         else:
             vegetarian = False
-        documents.append(DocEntry(curr_id, doc["name"], len(d), doc["title"], doc["descr"], doc["img_url"], vegetarian))
+
+        len_ingr = compute_len_ingr(doc["ingredients"], DO_TAGS_STEMM)
+        documents.append(DocEntry(curr_id, doc["name"], len(d), doc["title"],
+                                  doc["descr"], doc["img_url"], len_ingr, vegetarian))
         curr_id += 1
 
     dictionary = load_json_to_str()
@@ -85,7 +97,7 @@ def retrieve_docs(query):
     # Preprocessing query
     print 'Preprocessing query..'
 
-    q_tokenized = prepocess_field(query, DO_TAGS_STEMM)
+    q_tokenized = preprocess_field(query, DO_TAGS_STEMM)
     q_tokenized = [str(w) for w in q_tokenized]
 
     retrieved_postings = []
@@ -130,8 +142,9 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
 
             if cur_value > 0:
                 bonus = WORDS_STEAK_BONUS
-
-            doc_scores[doc_id] = bonus + cur_value + ((tf * idf)/float(documents[doc_id].get_size()))
+            cur_doc = documents[doc_id]
+            norm = float(cur_doc.get_size()) + cur_doc.get_title_size()*TITLE_WEIGHT + cur_doc.get_ingridient_size()*ING_WEIGHT
+            doc_scores[doc_id] = bonus + cur_value + ((tf * idf)/norm)
 
             if do_proximity:
                 if doc_id not in doc_pos.keys():

@@ -55,7 +55,7 @@ def process_json_recipes(recipes_file):
     fb.close()
 
 
-def prepocess_field(field, process):
+def preprocess_field(field, process):
     word_tokens = word_tokenize(field)
 
     # Stopwords removal
@@ -104,7 +104,7 @@ def tabularize_recipe(recipe, process):
                 if val == "":
                     continue
                 decoded_value = unicode_ascii_decoder.unicode_to_ascii(val)
-                pp_field = prepocess_field(decoded_value, process)
+                pp_field = preprocess_field(decoded_value, process)
                 recipe_tsv += "III" + "\t"
                 recipe_tsv += "\t".join(pp_field) + "\t"
                 recipe_tsv += "III" + "\t"
@@ -114,18 +114,18 @@ def tabularize_recipe(recipe, process):
                 if val == "":
                     continue
                 decoded_value = unicode_ascii_decoder.unicode_to_ascii(val)
-                pp_field = prepocess_field(decoded_value, process)
+                pp_field = preprocess_field(decoded_value, process)
                 recipe_tsv += "\t".join(pp_field) + "\t"
 
         elif key == "title":
             decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
-            pp_field = prepocess_field(decoded_value, process)
+            pp_field = preprocess_field(decoded_value, process)
             recipe_tsv += "TTT" + "\t"
             recipe_tsv += "\t".join(pp_field) + "\t"
             recipe_tsv += "TTT" + "\t"
         else:
             decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
-            pp_field = prepocess_field(decoded_value, process)
+            pp_field = preprocess_field(decoded_value, process)
             recipe_tsv += "\t".join(pp_field) + "\t"
 
     return recipe_tsv
