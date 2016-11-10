@@ -1,7 +1,12 @@
 import json
 import operator
 from collections import defaultdict
+
 from corpus_tokenizer import prepocess_field
+from utils.json_coders import LabeledListDecoder
+from utils.data_structures import DocEntry
+from utils.utility_functions import load_tsv
+from utils.utility_functions import load_json
 from corpus_tokenizer import DO_TAGS_STEMM
 
 
@@ -31,11 +36,6 @@ def deunify_dict(d):
 
 
 def load_json_to_str(filename=None):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.json_coders import LabeledListDecoder
-
     if not filename:
         filename = INDEX_NAME
     with open("..\\{}\\{}".format(INPUT_DIR, filename)) as json_data:
@@ -45,13 +45,6 @@ def load_json_to_str(filename=None):
 
 
 def setup_query_engine():
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.data_structures import DocEntry
-    from utils.utility_functions import load_tsv
-    from utils.utility_functions import load_json
-
     print 'setup_query_engine..'
     global dictionary
     global documents
@@ -206,13 +199,7 @@ def ev_dist(pos_list_i, pos_list_j):
 
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
     setup_query_engine()

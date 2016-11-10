@@ -105,13 +105,7 @@ def check_if_empty(attribute):
 
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(CORPUS_DIR)
     ensure_dir(RECIPES_DIR)

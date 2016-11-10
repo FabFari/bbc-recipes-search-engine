@@ -1,11 +1,16 @@
 import re
 import string
+
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import SnowballStemmer
 from nltk import pos_tag
+
+from utils import unicode_ascii_decoder
+from utils.tagger_converter import penn_to_wn
+from utils.utility_functions import load_json
 
 RECIPE_JSON = 'recipes.json'
 
@@ -24,11 +29,6 @@ DO_SNOW_STEMM = "snow"
 
 
 def process_json_recipes(recipes_file):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.utility_functions import load_json
-
     # fl = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_LEMM), 'wt')
     # fs = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_STEM), 'wt')
     # ft = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_TAGS), 'wt')
@@ -56,11 +56,6 @@ def process_json_recipes(recipes_file):
 
 
 def prepocess_field(field, process):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.tagger_converter import penn_to_wn
-
     word_tokens = word_tokenize(field)
 
     # Stopwords removal
@@ -94,11 +89,6 @@ def prepocess_field(field, process):
 
 
 def tabularize_recipe(recipe, process):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils import unicode_ascii_decoder
-
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
@@ -147,13 +137,7 @@ def fullmatch(regex, pattern, flags=0):
 
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
     ensure_dir(OUTPUT_DIR)

@@ -1,12 +1,4 @@
 import io
-import sys
-import webbrowser
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QUrl
-from gui.main_view import Ui_MainWindow
-from gui.web_view import Ui_WebContent
-from search_engine.query_engine import perform_query
-from search_engine.query_engine import setup_query_engine
 from bs4 import BeautifulSoup
 from search_engine.corpus_builder import check_if_empty
 

@@ -2,6 +2,11 @@ import csv
 import json
 import math
 
+from utils.utility_functions import load_tsv
+from utils.json_coders import LabeledListEncoder
+from utils.data_structures import ParsedEntry
+from utils.data_structures import LabeledList
+
 INPUT_DIR = "data"
 OUTPUT_DIR = "data"
 
@@ -16,12 +21,6 @@ doc_number = 0
 
 
 def build_index_json(tsv=None, filename=None):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.utility_functions import load_tsv
-    from utils.json_coders import LabeledListEncoder
-
     if tsv:
         inv_index = sort_entries(collect_terms(load_tsv(tsv, INPUT_DIR)))
     else:
@@ -36,22 +35,12 @@ def build_index_json(tsv=None, filename=None):
 
 
 def process_corpus(tsv=None):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.utility_functions import load_tsv
-
     if tsv:
         return sort_entries(collect_terms(load_tsv(tsv, INPUT_DIR)))
     return sort_entries(collect_terms(load_tsv(TSV_NAME, INPUT_DIR)))
 
 
 def collect_terms(list_of_lists):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.data_structures import ParsedEntry
-
     global doc_number
     terms = []
     doc_id = 0
@@ -86,11 +75,6 @@ def collect_terms(list_of_lists):
 
 
 def sort_entries(list_pe):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.data_structures import LabeledList
-
     print 'Building index...'
     parsed_entries = sorted(list_pe, key=lambda parsed_entry: parsed_entry.term)
     num_entries = len(parsed_entries)
@@ -139,13 +123,7 @@ def sort_entries(list_pe):
     return dictionary
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
     ensure_dir(OUTPUT_DIR)

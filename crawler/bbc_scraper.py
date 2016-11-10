@@ -3,11 +3,13 @@ You will need to find a way to download all the recipes from the site. You can u
 you want. It is important to put some time delay between requests; at least 1sec between two
 requests. For that you can use the time.sleep command of Python'''
 import urllib2
-from bs4 import BeautifulSoup
 import string
 import os
 import socket
 import os.path
+
+from bs4 import BeautifulSoup
+from utils.utility_functions import open_inf
 
 BASE_URL = "http://www.bbc.co.uk"
 BASE_RECIPES_URL = "http://www.bbc.co.uk/food/recipes"
@@ -25,11 +27,6 @@ OUTPUT_DIR = "data"
 
 
 def get_recipes_by_ingredients():
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.utility_functions import open_inf
-
     print '----------- get_recipes_by_ingredients called -----------'
     alpha = list(string.ascii_lowercase)
 
@@ -160,13 +157,7 @@ def get_immediate_subdirectories(a_dir):
 
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
     ensure_dir(OUTPUT_DIR)

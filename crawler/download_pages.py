@@ -2,6 +2,8 @@ import urllib2
 import httplib
 import os.path
 
+from utils.utility_functions import open_inf
+
 BASE_URL = "http://www.bbc.co.uk"
 URLS_FILE = 'links_pythonIngredients.txt'
 INPUT_DIR = "data"
@@ -23,11 +25,6 @@ def get_list_from_file():
 
 
 def save_local_copy(urls_list):
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from utils.utility_functions import open_inf
-
     print '-------- saveLocalCopy called -----------------'
     broke_links = []
 
@@ -62,13 +59,7 @@ def put_into_file(recipes_urls, name):
 
 
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from utils.utility_functions import ensure_dir
-    else:
-        from ..utils.utility_functions import ensure_dir
+    from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
     links = get_list_from_file()

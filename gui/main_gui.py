@@ -13,6 +13,8 @@ RECIPES_DIR = "recipes"
 class QCustomQWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(QCustomQWidget, self).__init__(parent)
+        self.filename = None
+        self.pixmap = None
         self.textQVBoxLayout = QtGui.QVBoxLayout()
         self.textUpQLabel = QtGui.QLabel()
         self.textDownQLabel = QtGui.QLabel()
@@ -27,8 +29,11 @@ class QCustomQWidget(QtGui.QWidget):
         self.textUpQLabel.setStyleSheet(''' color: rgb(0, 0, 255); ''')
         self.textDownQLabel.setStyleSheet('''color: rgb(255, 0, 0); ''')
 
-    def set_name_file(self, text):
-        self.name_file = text
+    def filename(self):
+        return self.filename
+
+    def set_filename(self, text):
+        self.filename = text
 
     def set_text_up(self, text):
         self.textUpQLabel.setText(text)
@@ -47,11 +52,8 @@ class QCustomQWidget(QtGui.QWidget):
             self.iconQLabel.setMaximumSize(width, height)
             self.iconQLabel.resize(width, height)
             self.pixmap = QtGui.QPixmap(image)
-            self.pixmap = pixmap.scaledToWidth(74)
+            self.pixmap = self.pixmap.scaledToWidth(74)
             self.iconQLabel.setPixmap(self.pixmap)
-
-    def get_name_file(self):
-        return self.name_file
 
 
 class Window(QtGui.QMainWindow, Ui_MainWindow):
@@ -79,23 +81,23 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
             # Create QCustomQWidget
             my_q_custom_q_widget = QCustomQWidget()
 
-            my_q_custom_q_widget.set_name_file(r.get_name())
+            my_q_custom_q_widget.set_filename(r.get_name())
             my_q_custom_q_widget.set_text_up(r.get_title())
             my_q_custom_q_widget.set_text_down(r.get_desc())
             my_q_custom_q_widget.set_icon(r.get_img_url())
 
             # Create QListWidgetItem
-            myQListWidgetItem = QtGui.QListWidgetItem(list_widget)
+            my_qlist_widget_item = QtGui.QListWidgetItem(list_widget)
 
             # add data to retrive when we click the single item
-            myQListWidgetItem.setData(QtCore.Qt.UserRole, my_q_custom_q_widget)
+            my_qlist_widget_item.setData(QtCore.Qt.UserRole, my_q_custom_q_widget)
 
             # Set size hint
-            myQListWidgetItem.setSizeHint(my_q_custom_q_widget.sizeHint())
+            my_qlist_widget_item.setSizeHint(my_q_custom_q_widget.sizeHint())
 
             # Add QListWidgetItem into QListWidget
-            list_widget.addItem(myQListWidgetItem)
-            list_widget.setItemWidget(myQListWidgetItem, my_q_custom_q_widget)
+            list_widget.addItem(my_qlist_widget_item)
+            list_widget.setItemWidget(my_qlist_widget_item, my_q_custom_q_widget)
 
         # self.setCentralWidget(list_widget)
         list_widget.itemClicked.connect(self.item_click)
@@ -105,12 +107,12 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         return
 
     @staticmethod
-    def worker(self, query, check):
+    def worker(query, check):
         print '[main_gui] perform_query "' + str(query) + '"'
         if str(query) in 'type the query':
             print '[main_gui] type the query in the query'
         else:
-            result = perform_query(str(query),check)
+            result = perform_query(str(query), check)
 
             if len(result) == 0:
                 result.append('No result found')
@@ -118,9 +120,9 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
 
     @staticmethod
     def item_click(item):
-        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_name_file())
+        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().filename())
         # now we have to lauch the new window
-        url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().get_name_file())
+        url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().filename())
         webbrowser.open(url)
 
 if __name__ == '__main__':
