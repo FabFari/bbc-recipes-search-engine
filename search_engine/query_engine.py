@@ -3,6 +3,7 @@ import operator
 from collections import defaultdict
 
 from utils.json_coders import LabeledListDecoder
+from utils.json_coders import DocEntryDecoder
 from utils.data_structures import DocEntry
 from utils.utility_functions import load_tsv
 from utils.utility_functions import load_json
@@ -45,6 +46,14 @@ def load_json_to_str(filename=None):
 
     return deunify_dict(data)
 
+def load_documents_json(filename=None):
+    if not filename:
+        filename = INDEX_NAME
+    with open("..\\{}\\{}".format(INPUT_DIR, filename)) as json_data:
+        data = json.load(json_data, cls=DocEntryDecoder)
+
+    return deunify_dict(data)
+
 
 def compute_len_ingr(ing_list, process):
     len_ingr = 0
@@ -60,7 +69,7 @@ def setup_query_engine():
     global documents
 
     # docs_list = load_tsv(TSV_NAME, INPUT_DIR)
-    documents = load_json(JSON_NAME, INPUT_DIR)
+    documents = load_documents_json(JSON_NAME)
 
     '''
     curr_id = 0
@@ -136,6 +145,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
         idf = cur_list.get_value()
         for d in docs:
             doc_id = d.get_label()
+
             if vegetarian and not documents[doc_id].is_veggie():
                 continue
             tf = d.get_value()
@@ -144,7 +154,8 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
 
             if cur_value > 0:
                 bonus = WORDS_STEAK_BONUS
-            cur_doc = documents[doc_id]
+
+            cur_doc = documents[str(doc_id)]
             norm = float(cur_doc.get_size()) + cur_doc.get_title_size()*TITLE_WEIGHT + cur_doc.get_size_ingr()*ING_WEIGHT
             doc_scores[doc_id] = bonus + cur_value + ((tf * idf)/norm)
 
@@ -183,7 +194,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
     else:
         ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
 
-    res = [documents[doc_pair[0]] for doc_pair in ordered_docs[:10]]
+    res = [documents[str(doc_pair[0])] for doc_pair in ordered_docs[:10]]
 
     return res
 

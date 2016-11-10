@@ -42,18 +42,17 @@ class QCustomQWidget(QtGui.QWidget):
         self.textDownQLabel.setText(text)
 
     def set_icon(self, image_path):
-        if len(image_path) > 0:
-            data = urllib2.urlopen(image_path).read()
-            image = QtGui.QImage()
-            image.loadFromData(data)
-            width = 40
-            height = 40
-            self.iconQLabel.setMinimumSize(width, height)
-            self.iconQLabel.setMaximumSize(width, height)
-            self.iconQLabel.resize(width, height)
-            self.pixmap = QtGui.QPixmap(image)
-            self.pixmap = self.pixmap.scaledToWidth(74)
-            self.iconQLabel.setPixmap(self.pixmap)
+        data = urllib2.urlopen(image_path).read()
+        image = QtGui.QImage()
+        image.loadFromData(data)
+        width = 40
+        height = 40
+        self.iconQLabel.setMinimumSize(width, height)
+        self.iconQLabel.setMaximumSize(width, height)
+        self.iconQLabel.resize(width, height)
+        self.pixmap = QtGui.QPixmap(image)
+        self.pixmap = self.pixmap.scaledToWidth(74)
+        self.iconQLabel.setPixmap(self.pixmap)
 
     def item_click(self, item):
         print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
@@ -79,7 +78,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         list_widget = self.listWidget
         list_widget.clear()
         list_widget.show()
-        print list_widget
+
         self.go_button.setEnabled(False)
         query = self.query_text.toPlainText()
         pool = ThreadPool(processes=1)
@@ -98,9 +97,13 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
                 my_q_custom_q_widget = QCustomQWidget()
 
                 my_q_custom_q_widget.set_filename(str(r.get_name()))
-                my_q_custom_q_widget.set_text_up(r.get_title())
-                my_q_custom_q_widget.set_text_down(r.get_desc())
-                my_q_custom_q_widget.set_icon(str(r.get_img_url()))
+
+                if r.get_title() is not None:
+                    my_q_custom_q_widget.set_text_up(r.get_title())
+                if r.get_desc() is not None:
+                    my_q_custom_q_widget.set_text_down(r.get_desc())
+                if r.get_img_url() is not None:
+                    my_q_custom_q_widget.set_icon(str(r.get_img_url()))
 
             # Create QListWidgetItem
             my_qlist_widget_item = QtGui.QListWidgetItem(list_widget)
@@ -122,8 +125,8 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.go_button.setEnabled(True)
         return
 
-    @staticmethod
-    def worker(query, check):
+
+    def worker(self, query, check):
         print '[main_gui] perform_query "' + str(query) + '"'
         if str(query) in 'type the query':
             print '[main_gui] type the query in the query'
