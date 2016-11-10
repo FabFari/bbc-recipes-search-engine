@@ -14,9 +14,7 @@ TSV_NAME = "recipes_tags.tsv"
 INDEX_NAME = "inverted_index.json"
 TITLE_WEIGHT = 10
 ING_WEIGHT = 3
-
 INGR_NEG_OFFSET = -1000
-
 doc_number = 0
 
 

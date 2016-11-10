@@ -1,5 +1,7 @@
 import re
 import string
+import json
+import io
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -11,6 +13,8 @@ from nltk import pos_tag
 from utils import unicode_ascii_decoder
 from utils.tagger_converter import penn_to_wn
 from utils.utility_functions import load_json
+from utils.data_structures import DocEntry
+from utils.json_coders import DocEntryEncoder
 
 RECIPE_JSON = 'recipes.json'
 
@@ -27,6 +31,8 @@ DO_LEMMIZATION = "lemm"
 DO_TAGS_STEMM = "tags"
 DO_SNOW_STEMM = "snow"
 
+DOCUMENTS = "documents.json"
+
 
 def process_json_recipes(recipes_file):
     # fl = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_LEMM), 'wt')
@@ -38,22 +44,24 @@ def process_json_recipes(recipes_file):
 
     print "Processing JSON..."
 
-    curr = 1
     tot = len(recipes)
-
+    documents = {}
+    i = 0
     for recipe in recipes:
-        print 'Processing recipe "{}": {} of {}'.format(recipe["name"], curr, tot)
-        # fl.write(tabularize_recipe(recipe, DO_LEMMIZATION) + '\n')
-        # fs.write(tabularize_recipe(recipe, DO_STEMMING) + '\n')
-        # ft.write(tabularize_recipe(recipe, DO_TAGS_STEMM) + '\n')
-        fb.write(tabularize_recipe(recipe, DO_SNOW_STEMM) + '\n')
-        curr += 1
-
+        print 'Processing recipe "{}": {} of {}'.format(recipe["name"], i + 1, tot)
+        # fl.write(tabularize_recipe(recipe, DO_LEMMIZATION, i, documents=documents) + '\n')
+        # fs.write(tabularize_recipe(recipe, DO_STEMMING, i, documents=documents) + '\n')
+        # ft.write(tabularize_recipe(recipe, DO_TAGS_STEMM, i, documents=documents) + '\n')
+        fb.write(tabularize_recipe(recipe, DO_SNOW_STEMM, i, documents=documents) + '\n')
+        i += 1
     # fl.close()
     # fs.close()
     # ft.close()
     fb.close()
 
+    # write json documents
+    with open("..\\{}\\{}".format(OUTPUT_DIR, DOCUMENTS), "wt") as f:
+        f.write(json.dumps(documents, indent=4, separators=(',', ': '), cls=DocEntryEncoder))
 
 def preprocess_field(field, process):
     word_tokens = word_tokenize(field)
@@ -88,23 +96,35 @@ def preprocess_field(field, process):
     return norm_tokens
 
 
-def tabularize_recipe(recipe, process):
+def tabularize_recipe(recipe, process, id, documents=None):
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
                      "dietary", "chef", "show", "ingredients", "methods", "img_url"]
+    size_doc = 0
+    de = DocEntry(id=id)
 
     for key in process_order:
         value = recipe[key]
-        if key == "name" or key == "img_url" or value == "":
+
+        if value == "":
             continue
 
-        if key == "ingredients":
+        elif key == "name":
+            de.set_name(value)
+
+        elif key == "img_url":
+            de.set_img_url(value)
+
+        elif key == "ingredients":
             for val in value:
                 if val == "":
                     continue
                 decoded_value = unicode_ascii_decoder.unicode_to_ascii(val)
                 pp_field = preprocess_field(decoded_value, process)
+                de.set_size_ingr(de.get_size_ingr() + len(pp_field))
+                size_doc += len(pp_field)
+
                 recipe_tsv += "III" + "\t"
                 recipe_tsv += "\t".join(pp_field) + "\t"
                 recipe_tsv += "III" + "\t"
@@ -116,17 +136,43 @@ def tabularize_recipe(recipe, process):
                 decoded_value = unicode_ascii_decoder.unicode_to_ascii(val)
                 pp_field = preprocess_field(decoded_value, process)
                 recipe_tsv += "\t".join(pp_field) + "\t"
+                size_doc += len(pp_field)
 
         elif key == "title":
             decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
             pp_field = preprocess_field(decoded_value, process)
+            de.set_title(value)
+            de.set_title_size(len(pp_field))
+            size_doc += len(pp_field)
+
             recipe_tsv += "TTT" + "\t"
             recipe_tsv += "\t".join(pp_field) + "\t"
             recipe_tsv += "TTT" + "\t"
+
+        elif key == "descr":
+            decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
+            pp_field = preprocess_field(decoded_value, process)
+            recipe_tsv += "\t".join(pp_field) + "\t"
+            de.set_desc(value)
+            size_doc += len(pp_field)
+
+        elif key == "dietary" and value == "Vegetarian":
+            decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
+            pp_field = preprocess_field(decoded_value, process)
+            recipe_tsv += "\t".join(pp_field) + "\t"
+            de.set_veggie(True)
+            size_doc += len(value)
+
         else:
             decoded_value = unicode_ascii_decoder.unicode_to_ascii(value)
             pp_field = preprocess_field(decoded_value, process)
             recipe_tsv += "\t".join(pp_field) + "\t"
+            size_doc += len(pp_field)
+
+    de.set_size(size_doc)
+
+    if documents is not None:
+        documents[id] = de
 
     return recipe_tsv
 

@@ -52,7 +52,7 @@ class LabeledList:
 
 
 class DocEntry:
-    def __init__(self, id, name, size, title, desc, img_url, ingr, veggie=False):
+    def __init__(self, id=None, name=None, size=0, title=None, title_size=0, desc=None, img_url=None, size_ingr=0, veggie=False):
         self.id = id
         self.name = name
         self.size = size
@@ -60,31 +60,64 @@ class DocEntry:
         self.desc = desc
         self.img_url = img_url
         self.veggie = veggie
-        self.len_ingr = ingr
+        self.size_ingr = size_ingr
+        self.title_size = title_size
 
     def get_id(self):
         return self.id
 
+    def set_id(self, id):
+        self.id = id
+
     def get_name(self):
         return self.name
+
+    def set_name(self, name):
+        self.name = name
 
     def get_size(self):
         return self.size
 
+    def set_size(self, size):
+        self.size = size
+
     def get_title(self):
         return self.title
 
-    def get_len_ingr(self):
-        return self.len_ingr
+    def set_title(self, title):
+        self.title = title
+
+    def set_title_size(self, size):
+        self.title_size = size
+
+    def get_title_size(self):
+        return self.title_size
+
+    def get_size_ingr(self):
+        return self.size_ingr
+
+    def set_size_ingr(self, len_ingr):
+        self.size_ingr = len_ingr
 
     def get_desc(self):
         return self.desc
 
+    def set_desc(self, desc):
+        self.desc = desc
+
     def get_img_url(self):
         return self.img_url
 
+    def set_img_url(self, img_url):
+        self.img_url = img_url
+
     def is_veggie(self):
         return self.veggie
+
+    def set_veggie(self, veggie):
+        self.veggie = veggie
+
+
 
     def str(self):
         return "{" + str(self.id) + " " + str(self.name) + " " + str(self.size) + "}"

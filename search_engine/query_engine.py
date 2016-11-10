@@ -15,7 +15,7 @@ from inv_index_builder import ING_WEIGHT
 INPUT_DIR = "data"
 
 INDEX_NAME = "inverted_index.json"
-JSON_NAME = "recipes.json"
+JSON_NAME = "documents.json"
 TSV_NAME = "recipes_tags.tsv"
 
 THRESHOLD = 0.0
@@ -48,6 +48,7 @@ def load_json_to_str(filename=None):
 
 def compute_len_ingr(ing_list, process):
     len_ingr = 0
+    print "ing_list: "+str(len(ing_list))
     for ing in ing_list:
         len_ingr += len(preprocess_field(ing, process))
     return len_ingr
@@ -58,9 +59,10 @@ def setup_query_engine():
     global dictionary
     global documents
 
-    docs_list = load_tsv(TSV_NAME, INPUT_DIR)
-    doc_jsons = load_json(JSON_NAME, INPUT_DIR)
+    # docs_list = load_tsv(TSV_NAME, INPUT_DIR)
+    documents = load_json(JSON_NAME, INPUT_DIR)
 
+    '''
     curr_id = 0
     for d in docs_list:
         doc = doc_jsons[curr_id]
@@ -68,11 +70,11 @@ def setup_query_engine():
             vegetarian = True
         else:
             vegetarian = False
-
-        len_ingr = compute_len_ingr(doc["ingredients"], DO_TAGS_STEMM)
+        size_ingr = compute_len_ingr(doc["ingredients"], DO_TAGS_STEMM)
         documents.append(DocEntry(curr_id, doc["name"], len(d), doc["title"],
-                                  doc["descr"], doc["img_url"], len_ingr, vegetarian))
+                                  doc["descr"], doc["img_url"], size_ingr, vegetarian))
         curr_id += 1
+    '''
 
     dictionary = load_json_to_str()
 
@@ -143,7 +145,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
             if cur_value > 0:
                 bonus = WORDS_STEAK_BONUS
             cur_doc = documents[doc_id]
-            norm = float(cur_doc.get_size()) + cur_doc.get_title_size()*TITLE_WEIGHT + cur_doc.get_ingridient_size()*ING_WEIGHT
+            norm = float(cur_doc.get_size()) + cur_doc.get_title_size()*TITLE_WEIGHT + cur_doc.get_size_ingr()*ING_WEIGHT
             doc_scores[doc_id] = bonus + cur_value + ((tf * idf)/norm)
 
             if do_proximity:
