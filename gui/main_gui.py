@@ -55,6 +55,12 @@ class QCustomQWidget(QtGui.QWidget):
             self.pixmap = self.pixmap.scaledToWidth(74)
             self.iconQLabel.setPixmap(self.pixmap)
 
+    def item_click(self, item):
+        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
+        # now we have to lauch the new window
+        # print str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
+        url = 'http://www.bbc.co.uk/food/recipes/' + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
+        webbrowser.open(url)
 
 class Window(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -63,6 +69,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.go_button.clicked.connect(self.perform_query)
         self.go_button.setEnabled(False)
+        print "plase wait few seconds, setup_query_engine"
         self.query_text.setPlainText("plase wait few seconds, setup_query_engine")
         setup_query_engine()
         self.go_button.setEnabled(True)
@@ -71,14 +78,13 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
     def perform_query(self):
         list_widget = self.listWidget
         list_widget.clear()
-
-
+        list_widget.show()
+        print list_widget
         self.go_button.setEnabled(False)
         query = self.query_text.toPlainText()
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(self.worker, (query, self.checkBox.isChecked()))  # tuple of args for foo
         result = async_result.get()
-
 
         for r in result:
             if r == "No result found":
@@ -110,7 +116,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
             list_widget.setItemWidget(my_qlist_widget_item, my_q_custom_q_widget)
 
         # self.setCentralWidget(list_widget)
-        list_widget.itemClicked.connect(self.item_click)
+        list_widget.itemClicked.connect(my_q_custom_q_widget.item_click)
         list_widget.show()
 
         self.go_button.setEnabled(True)
@@ -128,13 +134,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
                 result.append('No result found')
             return result
 
-    @staticmethod
-    def item_click(item):
-        print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
-        # now we have to lauch the new window
-        #print str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
-        url = 'http://www.bbc.co.uk/food/recipes/'+str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
-        webbrowser.open(url)
+
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
