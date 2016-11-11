@@ -11,7 +11,7 @@ CORPUS_NAME = "recipes.json"
 
 
 def extract_recipe(recipe):
-    f = io.open('..\\{}\\{}'.format(RECIPES_DIR, recipe), 'r', encoding='utf-8')
+    f = io.open(os.path.join(os.pardir, RECIPES_DIR, recipe), 'r', encoding='utf-8')
     soup = BeautifulSoup(f, 'html5lib')
     # dict_recipe = dict()
     dict_recipe = OrderedDict()
@@ -66,7 +66,7 @@ def extract_recipe(recipe):
     # print "Methods: ", methods
 
     img_url = soup.find_all("img", class_="recipe-media__image responsive-images")
-    if (len(img_url) > 0):
+    if len(img_url) > 0:
         img_url = img_url[0]['src']
     else:
         img_url = u''
@@ -91,7 +91,7 @@ def build_corpus():
         recipes_list.append(extract_recipe(recipe))
         curr += 1
 
-    with io.open('..\\{}\\{}'.format(CORPUS_DIR, CORPUS_NAME), 'wt', encoding='utf-8') as f:
+    with io.open(os.path.join(os.pardir, CORPUS_DIR, CORPUS_NAME), 'wt', encoding='utf-8') as f:
         f.write(unicode(json.dumps(recipes_list, ensure_ascii=False, indent=4, separators=(',', ': '))))
 
     print "Corpus built."

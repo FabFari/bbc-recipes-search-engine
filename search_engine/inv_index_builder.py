@@ -1,4 +1,4 @@
-import csv
+import os
 import json
 import math
 
@@ -27,7 +27,7 @@ def build_index_json(tsv=None, filename=None):
     if not filename:
         filename = INDEX_NAME
     print 'Writing in json file...'
-    with open("..\\{}\\{}".format(OUTPUT_DIR, filename), "wt") as f:
+    with open(os.path.join(os.pardir, OUTPUT_DIR, filename), "wt") as f:
         f.write(json.dumps(inv_index, indent=4, separators=(',', ': '), cls=LabeledListEncoder))
     print 'Write done'
 

@@ -1,7 +1,7 @@
+import os
 import re
 import string
 import json
-import io
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -34,11 +34,19 @@ DO_SNOW_STEMM = "snow"
 DOCUMENTS = "documents.json"
 
 
-def process_json_recipes(recipes_file):
-    # fl = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_LEMM), 'wt')
-    # fs = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_STEM), 'wt')
-    # ft = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_TAGS), 'wt')
-    fb = open('..\\{}\\{}'.format(OUTPUT_DIR, RECIPE_TSV_SNOW), 'wt')
+def process_name(process):
+    if process == DO_STEMMING:
+        return RECIPE_TSV_STEM
+    elif process == DO_LEMMIZATION:
+        return RECIPE_TSV_LEMM
+    elif process == DO_TAGS_STEMM:
+        return RECIPE_TSV_TAGS
+    else:
+        return RECIPE_TSV_SNOW
+
+
+def process_json_recipes(recipes_file, process):
+    f = open(os.path.join(os.pardir, OUTPUT_DIR, process_name(process)), 'wt')
 
     recipes = load_json(recipes_file, INPUT_DIR)
 
@@ -49,19 +57,15 @@ def process_json_recipes(recipes_file):
     i = 0
     for recipe in recipes:
         print 'Processing recipe "{}": {} of {}'.format(recipe["name"], i + 1, tot)
-        # fl.write(tabularize_recipe(recipe, DO_LEMMIZATION, i, documents=documents) + '\n')
-        # fs.write(tabularize_recipe(recipe, DO_STEMMING, i, documents=documents) + '\n')
-        # ft.write(tabularize_recipe(recipe, DO_TAGS_STEMM, i, documents=documents) + '\n')
-        fb.write(tabularize_recipe(recipe, DO_SNOW_STEMM, i, documents=documents) + '\n')
+        f.write(tabularize_recipe(recipe, process, i, documents=documents) + '\n')
         i += 1
-    # fl.close()
-    # fs.close()
-    # ft.close()
-    fb.close()
+
+    f.close()
 
     # write json documents
     with open("..\\{}\\{}".format(OUTPUT_DIR, DOCUMENTS), "wt") as f:
         f.write(json.dumps(documents, indent=4, separators=(',', ': '), cls=DocEntryEncoder))
+
 
 def preprocess_field(field, process):
     word_tokens = word_tokenize(field)
@@ -96,13 +100,13 @@ def preprocess_field(field, process):
     return norm_tokens
 
 
-def tabularize_recipe(recipe, process, id, documents=None):
+def tabularize_recipe(recipe, process, doc_id, documents=None):
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
                      "dietary", "chef", "show", "ingredients", "methods", "img_url"]
     size_doc = 0
-    de = DocEntry(id=id)
+    de = DocEntry(id=doc_id)
 
     for key in process_order:
         value = recipe[key]
@@ -172,7 +176,7 @@ def tabularize_recipe(recipe, process, id, documents=None):
     de.set_size(size_doc)
 
     if documents is not None:
-        documents[id] = de
+        documents[doc_id] = de
 
     return recipe_tsv
 
@@ -187,4 +191,4 @@ if __name__ == '__main__':
 
     ensure_dir(INPUT_DIR)
     ensure_dir(OUTPUT_DIR)
-    process_json_recipes(RECIPE_JSON)
+    process_json_recipes(RECIPE_JSON, DO_TAGS_STEMM)
