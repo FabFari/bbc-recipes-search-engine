@@ -61,6 +61,7 @@ class QCustomQWidget(QtGui.QWidget):
         url = 'http://www.bbc.co.uk/food/recipes/' + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
         webbrowser.open(url)
 
+
 class Window(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -125,7 +126,6 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.go_button.setEnabled(True)
         return
 
-
     def worker(self, query, check):
         print '[main_gui] perform_query "' + str(query) + '"'
         if str(query) in 'type the query':
@@ -136,7 +136,6 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
             if len(result) == 0:
                 result.append('No result found')
             return result
-
 
 
 if __name__ == '__main__':

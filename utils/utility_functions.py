@@ -6,19 +6,19 @@ import httplib
 
 
 def ensure_dir(dir_name):
-    if not os.path.exists("..\\{}".format(dir_name)):
-        os.makedirs("..\\{}".format(dir_name))
+    if not os.path.exists(os.path.join(os.pardir, dir_name)):
+        os.makedirs(os.path.join(os.pardir, dir_name))
 
 
 def load_json(filename, in_dir):
-    with open("..\\{}\\{}".format(in_dir, filename)) as json_data:
+    with open(os.path.join(os.pardir, in_dir, filename)) as json_data:
         data = json.load(json_data)
     return data
 
 
 def load_tsv(tsv, in_dir):
     lines = []
-    with open("..\\{}\\{}".format(in_dir, tsv), 'rb') as tsv_in:
+    with open(os.path.join(os.pardir, in_dir, tsv), 'rb') as tsv_in:
         tsv_in = csv.reader(tsv_in, delimiter='\t')
         for row in tsv_in:
             lines.append(row)
