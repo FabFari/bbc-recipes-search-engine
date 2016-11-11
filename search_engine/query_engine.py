@@ -118,7 +118,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
         for d in docs:
             doc_id = d.get_label()
 
-            if vegetarian and not documents[doc_id].is_veggie():
+            if vegetarian and not documents[str(doc_id)].is_veggie():
                 continue
             tf = d.get_value()
             cur_value = doc_scores[doc_id]
@@ -157,7 +157,7 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
                 continue
 
     if vegetarian:
-        veggie_docs = {doc_id: score for doc_id, score in doc_scores.iteritems() if documents[doc_id].is_veggie()}
+        veggie_docs = {str(doc_id): score for doc_id, score in doc_scores.iteritems() if documents[str(doc_id)].is_veggie()}
         ordered_docs = sorted(veggie_docs.items(), key=operator.itemgetter(1), reverse=True)
     else:
         ordered_docs = sorted(doc_scores.items(), key=operator.itemgetter(1), reverse=True)
