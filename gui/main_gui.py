@@ -10,6 +10,7 @@ from multiprocessing.pool import ThreadPool
 RECIPES_DIR = "recipes"
 
 
+# class of custom line when the resuls of the search have to show to the user
 class QCustomQWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(QCustomQWidget, self).__init__(parent)
@@ -41,6 +42,7 @@ class QCustomQWidget(QtGui.QWidget):
     def set_text_down(self, text):
         self.textDownQLabel.setText(text)
 
+    # set the image, from the url we have to download
     def set_icon(self, image_path):
         data = urllib2.urlopen(image_path).read()
         image = QtGui.QImage()
@@ -54,6 +56,7 @@ class QCustomQWidget(QtGui.QWidget):
         self.pixmap = self.pixmap.scaledToWidth(74)
         self.iconQLabel.setPixmap(self.pixmap)
 
+    # open the browser whit the right link of the recipe
     def item_click(self, item):
         print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
         # now we have to lauch the new window
@@ -67,6 +70,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        # when the go butto is clicked we perform the query
         self.go_button.clicked.connect(self.perform_query)
         self.go_button.setEnabled(False)
         print "plase wait few seconds, setup_query_engine"
@@ -82,10 +86,12 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
 
         self.go_button.setEnabled(False)
         query = self.query_text.toPlainText()
+        # launch the thread for gui purpose
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(self.worker, (query, self.checkBox.isChecked()))  # tuple of args for foo
         result = async_result.get()
 
+        # build eache line of QCustomQWidget
         for r in result:
             if r == "No result found":
                 my_q_custom_q_widget = QCustomQWidget()
@@ -131,6 +137,7 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         if str(query) in 'type the query':
             print '[main_gui] type the query in the query'
         else:
+            # thread payload
             result = perform_query(str(query), check)
 
             if len(result) == 0:

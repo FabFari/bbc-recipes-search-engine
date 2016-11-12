@@ -5,6 +5,7 @@ import os.path
 from utils.utility_functions import open_inf
 
 BASE_URL = "http://www.bbc.co.uk"
+# file where are saved all recipe links
 URLS_FILE = 'links_pythonIngredients.txt'
 INPUT_DIR = "data"
 OUTPUT_DIR = "recipes"
@@ -26,19 +27,23 @@ def get_list_from_file():
 
 def save_local_copy(urls_list):
     print '-------- saveLocalCopy called -----------------'
+    # we can find a link that point a expired page
     broke_links = []
 
     curr_num = 0
     for url in urls_list:
+        # try to read the url
         page = open_inf(url)
 
         if page == -1:
             broke_links.append(url)
         else:
+            # read the page's content
             page_content = page.read()
             name = url[len(BASE_URL + '/food/recipes/'):len(url)]
             print "recipe #{}: {}".format(curr_num, name)
             f = open("..\\{}\\{}.html".format(OUTPUT_DIR, name), 'w')
+            # write the page in .html file
             f.write(page_content)
             f.close()
 
@@ -62,5 +67,7 @@ if __name__ == '__main__':
     from utils.utility_functions import ensure_dir
 
     ensure_dir(INPUT_DIR)
+    # get all links from URLS_FILE
     links = get_list_from_file()
+    # for each link download the page and save it
     save_local_copy(links)
