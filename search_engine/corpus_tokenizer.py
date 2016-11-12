@@ -45,7 +45,13 @@ def process_name(process):
         return RECIPE_TSV_SNOW
 
 
-def process_json_recipes(recipes_file, process):
+def process_json_recipes(recipes_file=None, process=None):
+    if not recipes_file:
+        recipes_file = RECIPE_JSON
+
+    if not process:
+        process = DO_TAGS_STEMM
+
     f = open(os.path.join(os.pardir, OUTPUT_DIR, process_name(process)), 'wt')
 
     recipes = load_json(recipes_file, INPUT_DIR)
