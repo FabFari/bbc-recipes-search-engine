@@ -1,7 +1,7 @@
 import sys
 import webbrowser
 from PyQt4 import QtCore, QtGui
-from gui.main_view2 import Ui_MainWindow
+from gui.main_view import Ui_MainWindow
 from search_engine.query_engine import perform_query
 from search_engine.query_engine import setup_query_engine
 import urllib2
