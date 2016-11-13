@@ -176,11 +176,6 @@ def retrieve_docs(query):
     return retrieved_postings
 
 
-# Receiving as input the posting lists retrieved,
-# this method is to be used to compute the relevance, with respect to the query, of the documents retrieved.
-# The method is called for each query and returns the top 10 scoring documents.
-# Documents' scores are computed in parallel;
-# The specific term-document tf idf are already precomputed.
 def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
     """To return the top K scored documents of the query
 
