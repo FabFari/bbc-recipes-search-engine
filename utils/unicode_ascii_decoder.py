@@ -1,7 +1,7 @@
-import unicodedata, sys
-
-# Translation dictionary.  Translation entries are added to this
-# dictionary as needed.
+import sys
+import unicodedata
+# Translation dictionary. Translation entries are
+# added to this dictionary as needed.
 
 CHAR_REPLACEMENT = {
     # latin-1 characters that don't have a unicode decomposition
@@ -36,13 +36,27 @@ CHAR_REPLACEMENT = {
 }
 
 
-class unaccented_map(dict):
-    """
-    Maps a unicode character code (the key) to a replacement code
-    (either a character code or a unicode string).
+class UnicodeMapper(dict):
+    """A class that provide replacement for unicode special characters
+
+    Summary:
+        This class is used to map a unicode character code (the key) to a
+        replacement code (either a character code or a unicode string).
+        It's used in the preprocessing phase to get rid of unicode characters
+        not directly mapped to ones available also in ASCII.
     """
 
     def mapchar(self, key):
+        """To convert a unicode special character to an ASCII compatible unicode string
+
+            It's used to convert a unicode special character into a unicode
+            string that can be directly converted to an ASCII one.
+            To support the conversion it uses an hardcoded dictionary easily
+            extensible with new unicode character codes.
+
+            :param key: The unicode character code to be converted
+            :return: The tag resulting from the conversion
+        """
         ch = self.get(key)
         if ch is not None:
             return ch
@@ -68,14 +82,15 @@ class unaccented_map(dict):
 
 
 def unicode_to_ascii(unicodestring):
-    """
-    Convert a unicode string into an ASCII representation, converting non-ascii
-    characters into close approximations where possible.
+    """To convert a unicode string to an ASCII one
+
+    Converts a unicode string into an ASCII representation, converting
+    all non-ascii characters into close approximations where possible.
 
     Special thanks to http://effbot.org/zone/unicode-convert.htm
 
-    @param Unicode String unicodestring  The string to translate
-    @result String
+    :param unicodestring: The unicode string to be translated
+    :return: The ASCII translated version of the input string
     """
-    charmap = unaccented_map()
+    charmap = UnicodeMapper()
     return unicodestring.translate(charmap).encode("ascii", "ignore")
