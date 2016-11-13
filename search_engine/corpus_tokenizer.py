@@ -17,6 +17,7 @@ from utils.data_structures import DocEntry
 from utils.json_coders import DocEntryEncoder
 
 RECIPE_JSON = 'recipes.json'
+DOCUMENTS = "documents.json"
 
 INPUT_DIR = 'data'
 OUTPUT_DIR = 'data'
@@ -30,8 +31,6 @@ DO_STEMMING = "stem"
 DO_LEMMIZATION = "lemm"
 DO_TAGS_STEMM = "tags"
 DO_SNOW_STEMM = "snow"
-
-DOCUMENTS = "documents.json"
 
 
 def process_name(process):
