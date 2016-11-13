@@ -12,8 +12,10 @@ from inv_index_builder import ING_WEIGHT
 
 
 INPUT_DIR = "data"
+
 # File name of the inverted index
 INDEX_NAME = "inverted_index.json"
+
 # File name of the collection of documents
 JSON_NAME = "documents.json"
 
