@@ -92,57 +92,58 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         result = async_result.get()
 
         # build eache line of QCustomQWidget
-        for r in result:
-            if r == "No result found":
-                my_q_custom_q_widget = QCustomQWidget()
+        if len(result) != 0:
+            for r in result:
+                if r == "No result found":
+                    my_q_custom_q_widget = QCustomQWidget()
 
-                my_q_custom_q_widget.set_filename("")
-                my_q_custom_q_widget.set_text_up("No result found")
-                my_q_custom_q_widget.set_text_down("No result found")
-            else:
-                # Create QCustomQWidget
-                my_q_custom_q_widget = QCustomQWidget()
+                    my_q_custom_q_widget.set_filename("")
+                    my_q_custom_q_widget.set_text_up("No result found")
+                    my_q_custom_q_widget.set_text_down("No result found")
+                else:
+                    # Create QCustomQWidget
+                    my_q_custom_q_widget = QCustomQWidget()
 
-                my_q_custom_q_widget.set_filename(str(r.get_name()))
+                    my_q_custom_q_widget.set_filename(str(r.get_name()))
 
-                if r.get_title() is not None:
-                    my_q_custom_q_widget.set_text_up(r.get_title())
-                if r.get_desc() is not None:
-                    my_q_custom_q_widget.set_text_down(r.get_desc())
-                if r.get_img_url() is not None:
-                    my_q_custom_q_widget.set_icon(str(r.get_img_url()))
+                    if r.get_title() is not None:
+                        my_q_custom_q_widget.set_text_up(r.get_title())
+                    if r.get_desc() is not None:
+                        my_q_custom_q_widget.set_text_down(r.get_desc())
+                    if r.get_img_url() is not None:
+                        my_q_custom_q_widget.set_icon(str(r.get_img_url()))
 
-            # Create QListWidgetItem
-            my_qlist_widget_item = QtGui.QListWidgetItem(list_widget)
+                # Create QListWidgetItem
+                my_qlist_widget_item = QtGui.QListWidgetItem(list_widget)
 
-            # add data to retrive when we click the single item
-            my_qlist_widget_item.setData(QtCore.Qt.UserRole, my_q_custom_q_widget)
+                # add data to retrive when we click the single item
+                my_qlist_widget_item.setData(QtCore.Qt.UserRole, my_q_custom_q_widget)
 
-            # Set size hint
-            my_qlist_widget_item.setSizeHint(my_q_custom_q_widget.sizeHint())
+                # Set size hint
+                my_qlist_widget_item.setSizeHint(my_q_custom_q_widget.sizeHint())
 
-            # Add QListWidgetItem into QListWidget
-            list_widget.addItem(my_qlist_widget_item)
-            list_widget.setItemWidget(my_qlist_widget_item, my_q_custom_q_widget)
+                # Add QListWidgetItem into QListWidget
+                list_widget.addItem(my_qlist_widget_item)
+                list_widget.setItemWidget(my_qlist_widget_item, my_q_custom_q_widget)
 
-        # self.setCentralWidget(list_widget)
-        list_widget.itemClicked.connect(my_q_custom_q_widget.item_click)
-        list_widget.show()
+            # self.setCentralWidget(list_widget)
+            list_widget.itemClicked.connect(my_q_custom_q_widget.item_click)
+            list_widget.show()
 
         self.go_button.setEnabled(True)
         return
 
     def worker(self, query, check):
         print '[main_gui] perform_query "' + str(query) + '"'
-        if str(query) in 'type the query':
-            print '[main_gui] type the query in the query'
+        result = []
+        if str(query) in 'type the query..' or str(query) in "":
+            print '[main_gui] type the query'
         else:
             # thread payload
             result = perform_query(str(query), check)
-
             if len(result) == 0:
                 result.append('No result found')
-            return result
+        return result
 
 
 if __name__ == '__main__':
