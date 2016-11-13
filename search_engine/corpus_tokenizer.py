@@ -35,6 +35,17 @@ DOCUMENTS = "documents.json"
 
 
 def process_name(process):
+    """To decide the name of file output of the process
+
+        It's used to decide the name of the file created at the
+        end of the pre-processing process. The name is decided
+        accordingly with the specific preprocessing process applied
+        to the documents, according the constants based mechanism
+        listed at the beginning of the Python file.
+
+        :param process: The name of the pre-processing process to be executed
+        :return: The name of the TSV file result of the process
+    """
     if process == DO_STEMMING:
         return RECIPE_TSV_STEM
     elif process == DO_LEMMIZATION:
@@ -46,6 +57,19 @@ def process_name(process):
 
 
 def process_json_recipes(recipes_file=None, process=None):
+    """To pre-process the corpus JSON file
+
+        It's used to run the pre-processing step on each document
+        stored within the corpus JSON file. Each recipe JSON object
+        is read from the file, pre-processed and then stored in a
+        specific TSV file, containing a row for each document.
+        The process also produces another file to support the query
+        execution and presentation at runtime.
+
+        :param recipes_file: The name of the corpus JSON file
+        :param process: The name of the pre-processing step to execute
+        :return: Nothing (void)
+    """
     if not recipes_file:
         recipes_file = RECIPE_JSON
 
@@ -74,6 +98,26 @@ def process_json_recipes(recipes_file=None, process=None):
 
 
 def preprocess_field(field, process):
+    """To pre-process a single recipe document field
+
+        It's used to pre-process a single field of a
+        recipe document. The pre-processing steps are:
+        - Tokenization
+        - Stop-Words removal
+        - Punctuation removal
+        - Case normalization
+        - One of the available lemmatization/stemming processes:
+            - Porter Stemmer stemming
+            - NLTK default lemmatizer lemmatization
+            - WordNet lemmatizer lemmatization
+            - Snowball Stemmer stemming
+        The result of the whole process is an iterable list of
+        tokens went through all the pre-process steps.
+
+        :param field: The recipe field to be pre-processed
+        :param process: The pre-process step to execute
+        :return: An iterable list of tokens
+    """
     word_tokens = word_tokenize(field)
 
     # Stopwords removal
@@ -107,6 +151,22 @@ def preprocess_field(field, process):
 
 
 def tabularize_recipe(recipe, process, doc_id, documents=None):
+    """To produce a tab-separated document starting from a recipe document
+
+        It's used to produce, starting from the recipe document
+        dictionary, a single line tab-separated document to be stored
+        in the TSV file representing the entire pre-processed corpus.
+        The method also extract other information out of the input
+        recipe document, to support the query execution and presentation
+        at runtime, temporarily stored in the variable 'documents'
+
+
+        :param recipe: The input recipe document represent as a dict
+        :param process: The pre-processing process to execute
+        :param doc_id: The id of the recipe document to process
+        :param documents: The dictionary with query support information
+        :return: The single line tab-separated representation of the recipe
+    """
     recipe_tsv = ""
 
     process_order = ["name", "title", "descr", "prep_time", "cook_time", "serves",
@@ -188,7 +248,19 @@ def tabularize_recipe(recipe, process, doc_id, documents=None):
 
 
 def fullmatch(regex, pattern, flags=0):
-    """Emulate python-3.4 re.fullmatch()."""
+    """To Emulate python-3.4 re.fullmatch() method
+
+        To emulate the behaviour of the Python 3.4 specific
+        re.fullmatch() method in Python 2.7.X.
+        The method is used to efficiently remove the punctuation
+        when pre-processing the recipe documents
+
+        :param regex: The regular expression to be matched
+        :param pattern: The pattern the regular expression has to match
+        :param flags: Optional flags to the process
+        :return: The corresponding matching object
+
+    """
     return re.match("(?:" + regex + r")\Z", pattern, flags=flags)
 
 

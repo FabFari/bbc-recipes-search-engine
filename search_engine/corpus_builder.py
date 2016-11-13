@@ -11,6 +11,17 @@ CORPUS_NAME = "recipes.json"
 
 
 def extract_recipe(recipe):
+    """To extract a recipe out of the corresponding HTML page
+
+        It's used to build a dictionary out of a recipe HTML page,
+        extracting only the meaningful information using BeautifulSoup.
+        The HTML page is scanned to find all the meaningful HTML tags,
+        to obtain from them the meaningful information needed to
+        construct the recipe dictionary to be returned.
+
+        :param recipe: The name of the input recipe HTML file
+        :return: A Python dict representing the recipe
+    """
     f = io.open(os.path.join(os.pardir, RECIPES_DIR, recipe), 'r', encoding='utf-8')
     soup = BeautifulSoup(f, 'html5lib')
     # dict_recipe = dict()
@@ -78,6 +89,15 @@ def extract_recipe(recipe):
 
 
 def build_corpus():
+    """To build a JSON file representing the entire corpus
+
+        It's used to build a JSON made up of recipe JSON objects,
+        where each object has a corresponding HTML file that has
+        been processed to extract all the meaningful informations
+        to be stored in the JSON object put in the corpus file.
+
+        :return: Nothing (void)
+    """
     recipes = os.listdir('..\\{}'.format(RECIPES_DIR))
     recipes_list = []
 
@@ -98,6 +118,18 @@ def build_corpus():
 
 
 def check_if_empty(attribute):
+    """To check if a recipe attribute is empty
+
+        It's used to check if a specific recipe tag attribute
+        extracted from the HTML page of the recipe is empty and
+        in this case return an empty unicode string instead.
+        Otherwise, if the attribute is not empty, the method
+        extracts the text value of the tag and strips from it
+        all the whitespace characters.
+
+        :param attribute: The recipe attribute to be tested
+        :return: The processed attribute value or the empty unicode string
+    """
     if len(attribute) > 0:
         return attribute[0].text.strip()
     else:
