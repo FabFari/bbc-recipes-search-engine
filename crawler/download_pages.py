@@ -12,12 +12,16 @@ OUTPUT_DIR = "recipes"
 
 
 def get_list_from_file():
+    """ from URLS_FILE file it reads this file and put in a list one line for each list's element
+           :param Nothing(void)
+           :return urls_list: list contents all links
+    """
     print '-------- getListFromFile called -----------'
     in_file = open('..\\{}\\{}'.format(INPUT_DIR, URLS_FILE), "r")
     urls_list = []
 
     for line in in_file:
-        # -1 perche nel file c'e' la new line(\n)
+        # -1 because in the file there is a new line "\n" and we do not want to save in the list
         urls_list.append(BASE_URL + line[:len(line)-1])
 
     print '#size {} : {}'.format(URLS_FILE, len(urls_list))
@@ -26,6 +30,11 @@ def get_list_from_file():
 
 
 def save_local_copy(urls_list):
+    """ from file where are saved all recipes' link we read one by one and it downloads
+            one page at time
+           :param Nothing(void)
+           :return: all recipes' files saved and broke link find
+    """
     print '-------- saveLocalCopy called -----------------'
     # we can find a link that point a expired page
     broke_links = []
@@ -53,6 +62,13 @@ def save_local_copy(urls_list):
 
 
 def put_into_file(recipes_urls, name):
+    """ put into the neme file the content of the list
+
+
+                   :param name: file where to put the content
+                   :param links_recipes: list of link
+                   :return: Nothing(void)
+     """
     recipes_set = set(recipes_urls)
     print '#size {} : {}'.format(name, len(recipes_set))
 

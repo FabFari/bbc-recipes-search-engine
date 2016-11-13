@@ -1,3 +1,4 @@
+# coding=utf-8
 import urllib2
 import string
 import os
@@ -28,8 +29,27 @@ OUTPUT_DIR = "data"
 
 
 def get_recipes_by_ingredients():
+    """Download all recipes into bbc web site
+
+            we started from the url http://www.bbc.co.uk/food/ingredients/by/letter/
+            scanning in alphabetical order all the ingredients and storing them this is
+            called links_i_level and store them in linksLevelIngredients.txt for debug
+            purpose.
+            Each of these 1° level link in our file pointed to a page which in turn
+            contained two different type of links: search and recipe. We built two
+            lists, one made of links of the former type, one of links of the latter.
+            At this point we started to build our set of links of recipes; links of
+            the recipe list of before step were pointing to recipes themselves and
+            can be added directly to the set. Conversely links in the search list
+            pointed to collections of recipes, we used them to navigate through
+            those pages and add the recipe links we had previously missed.
+
+            :param Nothing (void)
+            :return: file containing all recipes' link
+    """
+
     print '----------- get_recipes_by_ingredients called -----------'
-    # list of all letter in alphabet
+
     alpha = list(string.ascii_lowercase)
 
     links_i_level = [] # links like "http://www.bbc.co.uk/food/ingredients/by/letter/[a-z]"
@@ -41,14 +61,10 @@ def get_recipes_by_ingredients():
     print "----------- links_i_level -----------"
 
     if os.path.isfile(I_LEVEL_INGR_LINKS_FILE):
-        # for debug purpose we save a file for each step, so if something go bad (connection error and so on)
-        # we can restart without redownload
         print 'file {} exists'.format(I_LEVEL_INGR_LINKS_FILE)
         links_i_level = read_list(I_LEVEL_INGR_LINKS_FILE)
     else:
         print 'file {} not exists'.format(I_LEVEL_INGR_LINKS_FILE)
-        # for all letter in alphabet we save all links like "bbc.co.uk/food/acidulated_water" found in, e.g.
-        # "bbc.co.uk/food/ingredients/by/letter/a"
         for letter in alpha:
             url = BASE_INGREDIENTS_URL + letter
             print 'letter: {}, url: {}'.format(letter, url)
@@ -64,13 +80,10 @@ def get_recipes_by_ingredients():
         print('#linksIlevelIngredients:', len(links_i_level))
         links_i_level.sort()
 
-        # for debug purpose we save in a file
         put_into_file(links_i_level, I_LEVEL_INGR_LINKS_FILE)
 
     print "----------- linksIIlevel -----------"
     if os.path.isfile(PARTIAL_INGR_LINKS_FILE) and os.path.isfile(SEARCH_TODO_INGR_LINKS_FILE):
-        # for debug purpose we save a file for each step, so if something go bad (connection error and so on)
-        # we can restart without redownload
         print 'file links_i_level exists'
         links_recipes = read_list(PARTIAL_INGR_LINKS_FILE)
         links_search = read_list(SEARCH_TODO_INGR_LINKS_FILE)
@@ -87,7 +100,6 @@ def get_recipes_by_ingredients():
             for l in page_links:
                 uri = l.get('href').encode('utf-8')
                 if '/food/recipes/' in uri:
-                    # we shunt two different type of links
                     if 'search' in uri:
                         links_search.append(str(uri).replace(' ', '%20'))
                     elif uri != '/food/recipes/':
@@ -95,50 +107,45 @@ def get_recipes_by_ingredients():
             i += 1
         print '#links_recipes: {}, #links_search: {}'.format(len(links_recipes), len(links_search))
 
-        # for debug purpose we save in a two different files.
-        # PARTIAL_INGR_LINKS_FILE because we did not find all recipes
         put_into_file(links_recipes, PARTIAL_INGR_LINKS_FILE)
         put_into_file(links_search, SEARCH_TODO_INGR_LINKS_FILE)
 
     print "\n----------- links_search -----------"
-    # last step
-    # for each link in links_search we try to look for a final recipe
+
     for link in links_search:
         print '[links_search] #links_recipes:', len(set(links_recipes))
         j = 1
         found = True
 
         print '[links_search]', BASE_URL + str(link).replace(' ', '%20')
-        # we have to be careful that one url has different page, so we have to look for also in the others pages
         while found:
             url = BASE_URL + str(link).replace(' ', '%20') + str('&page=') + str(j)
             print '     [links_search] page:', url
             page = open_inf(url)
 
-            # The search goes through all the pages: the counter increases until we finish the pages
             soup = soup_parse(page)
             h3 = soup.find_all("h3", {"class": "error"})
 
-            # check if we finished the pages
             for h in h3:
                 if 'No results found' in h.getText():
                     found = False
             if found:
-                # if there are results we try to look for a final recipe
                 page_links = soup.find_all('a', href=True)
                 for l in page_links:
                     uri = l.get('href').encode('utf-8')
                     if '/food/recipes/' in uri and 'search' not in uri:
                         if uri != '/food/recipes/':
-                            # add in a list
                             links_recipes.append(l.get('href'))
                 j += 1
-    # save the final result into the file
-    # the file has for each line one link of one recipe, in total 11298 recipes.
     put_into_file(links_recipes, INGR_LINKS_FILE)
 
 
 def soup_parse(page):
+    """ performs BeautifulSoup function in a try-catch paradigm
+            :param page: to pass to BeautifulSoup
+            :return: parsed document
+    """
+
     i = 1
     while True:
         # since sometimes there is network error, we manage this issue to try indefinitely the function
@@ -152,8 +159,15 @@ def soup_parse(page):
             i += 1
             print "[getSoup] Timeout exceeded: %r" % e
 
-# from file name read the content and put each line into the list
+
 def read_list(name):
+    """ from file name we have to read the content and put each line into the list
+
+            Since e have a files contenting the link downloaded before for debug purpose
+            we can read the content without redownload
+            :param name : file to read
+            :return: list where each element of the list is one line of the file
+    """
     in_file = open("..\\{}\\{}".format(INPUT_DIR, name), "r")
     lines = []
     for line in in_file:
@@ -166,6 +180,13 @@ def read_list(name):
 
 
 def put_into_file(links_recipes, name):
+    """ put into the neme file the content of the list
+
+
+               :param name: file where to put the content
+               :param links_recipes:  list of link
+               :return: Nothing(void)
+    """
     # remove duplicates
     s = set(links_recipes)
 
@@ -176,11 +197,6 @@ def put_into_file(links_recipes, name):
     for link in s:
         out_file.write(link + '\n')
     out_file.close()
-
-
-def get_immediate_subdirectories(a_dir):
-    return [name for name in os.listdir(a_dir) if os.path.isdir(os.path.join(a_dir, name))]
-
 
 if __name__ == '__main__':
     from utils.utility_functions import ensure_dir

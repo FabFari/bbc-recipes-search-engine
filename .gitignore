@@ -13,3 +13,4 @@
 # Generated Folders
 data/
 recipes/
+*.pyc

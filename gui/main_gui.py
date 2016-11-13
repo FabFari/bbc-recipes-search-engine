@@ -12,7 +12,28 @@ RECIPES_DIR = "recipes"
 
 # class of custom line when the resuls of the search have to show to the user
 class QCustomQWidget(QtGui.QWidget):
+    """A single element of the listWidget (list of the results
+
+        Summary:
+            This class is used to maintain the information of a single
+            element of the listWidget. It's used to construct the single entry of
+            the list where there are four major informations
+
+
+        Attributes:
+            filename = file name of the web page to see
+            textUpQLabel = the recipe's title
+            textDownQLabel = one description's part
+            iconQLabel = the image associate to that recipe
+    """
     def __init__(self, parent=None):
+        """QCustomQWidget's __init__ method
+
+                    ParsedEntry's __init__ method.
+
+                    :param parent: gui object
+                    :return: Nothing (void)
+        """
         super(QCustomQWidget, self).__init__(parent)
         self.filename = None
         self.pixmap = None
@@ -31,19 +52,43 @@ class QCustomQWidget(QtGui.QWidget):
         self.textDownQLabel.setStyleSheet('''color: rgb(255, 0, 0); ''')
 
     def get_filename(self):
+        """To retrieve the QCustomQWidget's filename value
+                :return: The QCustomQWidget's filename value
+        """
         return self.filename
 
     def set_filename(self, text):
+        """To updated the QCustomQWidget's filename value
+
+               :param text: The new QCustomQWidget's filename value
+               :return: Nothing (void)
+        """
         self.filename = text
 
     def set_text_up(self, text):
+        """To updated the QCustomQWidget's textUpQLabel value
+
+               :param text: The new QCustomQWidget's textUpQLabel value
+               :return: Nothing (void)
+        """
         self.textUpQLabel.setText(text)
 
     def set_text_down(self, text):
+        """To updated the QCustomQWidget's textDownQLabel value
+
+               :param text: The new QCustomQWidget's textDownQLabel value
+               :return: Nothing (void)
+        """
         self.textDownQLabel.setText(text)
 
     # set the image, from the url we have to download
     def set_icon(self, image_path):
+        """To updated the QCustomQWidget's iconQLabel value
+
+               It downloads the image from bbc website, resize and set
+               :param image_path: image's url
+               :return: Nothing (void)
+        """
         data = urllib2.urlopen(image_path).read()
         image = QtGui.QImage()
         image.loadFromData(data)
@@ -56,8 +101,15 @@ class QCustomQWidget(QtGui.QWidget):
         self.pixmap = self.pixmap.scaledToWidth(74)
         self.iconQLabel.setPixmap(self.pixmap)
 
-    # open the browser whit the right link of the recipe
+
     def item_click(self, item):
+        """When one item og the listWidget is clicked it launch the browser
+
+               It retrive the QCustomQWidget and the filename attribute. From the last one information
+               it can build a url that aims to the bbc web page
+               :param item: listWidget item
+               :return: Nothing (void)
+        """
         print "[main_gui] You clicked: " + str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
         # now we have to lauch the new window
         # print str(item.data(QtCore.Qt.UserRole).toPyObject().get_filename())
@@ -66,11 +118,24 @@ class QCustomQWidget(QtGui.QWidget):
 
 
 class Window(QtGui.QMainWindow, Ui_MainWindow):
+    """A single element of the listWidget (list of the results
+
+            Summary:
+                This class is used to maintain the information of a single
+                element of the listWidget. It's used to construct the single entry of
+                the list where there are four major informations
+
+
+            Attributes:
+                go_button = button
+                query_text = space where the query is typed
+                listWidget = where the results are shown
+            """
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
-        # when the go butto is clicked we perform the query
+        # when the go button is clicked we perform the query
         self.go_button.clicked.connect(self.perform_query)
         self.go_button.setEnabled(False)
         print "plase wait few seconds, setup_query_engine"
@@ -80,6 +145,12 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         self.query_text.setPlainText("type the query..")
 
     def perform_query(self):
+        """When one go button is clicked this function is called
+
+              In this method we launch the thread for gui purpose
+              :param item: Nothing (void)
+              :return: Nothing (void)
+        """
         list_widget = self.listWidget
         list_widget.clear()
         list_widget.show()
@@ -134,6 +205,13 @@ class Window(QtGui.QMainWindow, Ui_MainWindow):
         return
 
     def worker(self, query, check):
+        """Thread's payload
+
+              In this method we launch the thread for gui purpose
+              :param query: text query to perform
+              :param check: vegetarian checkbox's status
+              :return: result: the firs top ten query result
+        """
         print '[main_gui] perform_query "' + str(query) + '"'
         result = []
         if str(query) in 'type the query..' or str(query) in "":
