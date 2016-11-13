@@ -23,7 +23,7 @@ TSV_NAME = "recipes_tags.tsv"
 THRESHOLD = 0.0
 # Documents with many query terms will have their score boosted
 WORDS_STEAK_BONUS = 0.1
-PROX_SCORE_FACTOR = 0.5
+PROX_SCORE_FACTOR = 0.005
 
 # Number of query results to be returned
 K = 10
@@ -237,9 +237,12 @@ def compute_scores(posting_lists, do_proximity=False, vegetarian=False):
             cur_value = doc_scores[doc_id]
             bonus = 0
 
-            # Fabri come dicevi ieri tu dovremmo toglierlo questo bonus ora.
+            '''
+            # To boost up the the matching of more than one query term
+            # Disabled by default.
             if cur_value > 0:
                 bonus = WORDS_STEAK_BONUS
+            '''
 
             cur_doc = documents[str(doc_id)]
             norm = float(cur_doc.get_size()) + cur_doc.get_title_size()*TITLE_WEIGHT + cur_doc.get_size_ingr()*ING_WEIGHT
@@ -300,7 +303,7 @@ def extend_pairs(pair_docs, term):
         :param term: The term to be added to the current set of pairs
         :return: The new set of term pairs extended with the new term
     """
-    new_pairs = set()
+    new_pairs = set([pair for pair in pair_docs if pair[1] != "NONE"])
 
     for p in pair_docs:
         new_pairs.add((p[0], term))
